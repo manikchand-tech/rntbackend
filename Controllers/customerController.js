@@ -1,7 +1,11 @@
 const Customer = require('../models/customers.model');
+const jwt = require('jsonwebtoken');
+const secretKey = require('./GenerateSecretKey')
+// Use the secretKey variable in your code
+console.log('Secret key customer:', secretKey);
 
 exports.signup = async (req, res) => {
-    try {  
+    try {
         const { name, username, password, location, preferences, email } = req.body;
         const customer = new Customer({ name, username, password, location, preferences, email });
         const existingUser = await Customer.findOne({ username: req.body.username });
@@ -12,10 +16,10 @@ exports.signup = async (req, res) => {
         if (existingUser) {
             return res.status(409).send('Username already taken');
         }
-      
+
         await customer.save();
         res.status(201).json({ message: 'Signup successful' });
-      
+
     } catch (error) {
 
         res.status(400).json({ message: error.message });
@@ -34,7 +38,7 @@ exports.getCustomerById = async (req, res) => {
     }
 };
 
-exports.updateCustomer = async (req, res) => {
+exports.updateCustomer= async (req, res) => {
     try {
         const { name, username, password, location, preferences, email } = req.body;
         const customer = await Customer.findByIdAndUpdate(req.params.id, { name, username, password, location, preferences, email });
@@ -82,10 +86,13 @@ exports.login = async (req, res, next) => {
             throw new Error('Invalid username or password');
         }
 
-
-        res.status(200).json({ message: 'Login successful' });
-    } catch (error) {
-       
+        // Generate a JWT token
+        const token = jwt.sign({ customerId: customer._id }, 'secretKey', { expiresIn: '1h' });
+        const decodedToken = jwt.decode(token);
+        if (decodedToken && decodedToken.customerId) {
+            const customerId = decodedToken.customerId;
+        res.status(200).json({ message: 'Login successful', token,customerId });
+    }}catch (error) {
         res.status(401).json({ message: error.message });
     }
 };
