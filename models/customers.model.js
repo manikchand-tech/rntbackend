@@ -16,7 +16,12 @@ const customerSchema = new Schema({
         required: true
     },
     location: {
-        type: String
+        addressLine1: { type: String, required: true },
+        addressLine2: { type: String },
+        city: { type: String, required: true },
+        district: { type: String, required: true },
+        state: { type: String, required: true },
+        country: { type: String, required: true }
     },
     preferences: {
         type: String

@@ -8,7 +8,9 @@ const PORT = process.env.PORT || 3000;
 const customerRoutes = require('./routes/customerRoutes.js')
 const vendorRoutes = require('./routes/vendorRoutes.js')
 const productRoutes = require('./routes/productRoutes');
-
+const ratingRoutes=require('./routes/ratingRoutes.js')
+const customersWhoRAted=require('./Controllers/ratingadmin.js')
+const reviewRoutes = require('./routes/reviewRoutes');
 // Middleware to parse JSON bodies
 app.use(express.json());
 app.use(cors());
@@ -41,11 +43,18 @@ app.get('/', (req, res) => {
 app.use('/customers', customerRoutes);
 app.use('/vendors', vendorRoutes);
 app.use('/products', productRoutes);
+app.use('/ratings', ratingRoutes);
+app.use('/reviews',reviewRoutes);
 // Error handler middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
+
+
+
+
+
 // app.post('/api/customers', async (req, res) => {
 //     try {
 //         const customer = new Customer(req.body);

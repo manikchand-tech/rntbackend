@@ -7,7 +7,14 @@ const vendorSchema = new mongoose.Schema({
     email: { type: String,unique:true, required: true },
     password: { type: String, required: true },
     businessName: { type: String, required: true },
-    businessAddress: { type: String, required: true },
+    businessAddress: {
+        addressLine1: { type: String, required: true },
+        addressLine2: { type: String },
+        city: { type: String, required: true },
+        district: { type: String, required: true },
+        state: { type: String, required: true },
+        country: { type: String, required: true }
+    },
     businessType: { type: String, enum: ['reachit', 'thinkit'], required: true },
     contactNumber: { type: String,unique:true, required: true },
     vendorImage: { type: String, default:""},

@@ -41,11 +41,11 @@ exports.getCustomerById = async (req, res) => {
 exports.updateCustomer= async (req, res) => {
     try {
         const { name, username, password, location, preferences, email } = req.body;
-        const customer = await Customer.findByIdAndUpdate(req.params.id, { name, username, password, location, preferences, email });
+        const customer = await Customer.findByIdAndUpdate(req.params.id, { name, username, password, location, preferences, email }, { new: true });
         if (!customer) {
             throw new Error('Customer not found');
         }
-        res.status(200).json({ message: 'Customer updated successfully' });
+        res.status(200).json(customer);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
