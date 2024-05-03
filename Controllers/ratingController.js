@@ -28,19 +28,19 @@ const submitRating = async (req, res) => {
       // This is a new rating from the user
       const newRating = new Rating({ vendorId, rating, customerId });
       await newRating.save();
-
     }
 
     // Calculate the new average rating
     const averageRating = await calculateAverageRating(vendorId);
 
-    // Return the new average rating
-    res.json({ averageRating:averageRating,userRating:existingRating.rating});
+    // Return the new average rating and user's rating
+    res.json({ averageRating: averageRating, userRating: existingRating ? existingRating.rating : rating });
   } catch (error) {
     console.error('Error submitting rating:', error);
     res.status(500).send('Error submitting rating');
   }
 };
+
 
 // Controller function to get the average rating
 // Controller function to get the average rating

@@ -1,5 +1,6 @@
 const Product = require('../models/products.model');
-const mongoose=require('mongoose')
+const Vendor = require('../models/vendors.model');
+const mongoose = require('mongoose')
 exports.getAllProducts = async (req, res) => {
     try {
         const products = await Product.find({ vendorId: req.params.vendorId });
@@ -67,3 +68,51 @@ exports.deleteProduct = async (req, res) => {
     }
 };
 
+
+
+
+exports.getRandomProducts = async (req, res) => {
+    try {
+        // Find all vendors with businessType 'thinkit'
+        const thinkitVendors = await Vendor.find({ businessType: 'thinkit' }).select('_id');
+        const vendorIds = thinkitVendors.map(vendor => vendor._id);
+        
+        // Get a random product from those vendors
+        const randomProduct = await Product.aggregate([
+            { $match: { vendorId: { $in: vendorIds } } }, // Corrected field name to vendorId
+            { $sample: { size: 5} }
+        ]);
+
+        if (randomProduct.length) {
+            res.json(randomProduct);
+        } else {
+            res.status(404).send('No products found for thinkit vendors');
+        }
+    } catch (error) {
+        res.status(500).send('Server error');
+    }
+};
+
+
+exports.searchThinkitProducts= async (req, res) => {
+    const { q } = req.query;
+
+    try {
+        // Find vendors with businessType 'thinkit'
+        const thinkitVendors = await Vendor.find({ businessType: 'thinkit' }).select('_id');
+        const vendorIds = thinkitVendors.map(vendor => vendor._id);
+
+        // Find products from vendors with businessType 'thinkit' that match the search query
+        const products = await Product.find({
+            $and: [
+                { vendorId: { $in: vendorIds } },
+                { $text: { $search: q } }
+            ]
+        });
+
+        res.json(products);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Server error');
+    }
+};

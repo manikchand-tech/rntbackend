@@ -1,10 +1,11 @@
 // controllers/reviewController.js
 const Review = require('../models/reviews.model');
-
+const Rating = require('../models/Ratings.model')
+const mongoose =require('mongoose')
 const createReview = async (req, res) => {
     try {
         const review = new Review(req.body);
-        
+
         await review.save();
         res.status(201).json(review);
     } catch (error) {
@@ -42,15 +43,25 @@ const getReviewsForProduct = async (req, res) => {
     }
 };
 
+
+
 const getReviewsForVendor = async (req, res) => {
     try {
-        const { vendorId } = req.params;
-        const reviews = await Review.find({ vendorId }).populate('customerId');
+        const { vendorId, ratingId, customerId } = req.params;
+
+        // Convert ratingId string to ObjectId
+       
+
+       
+
+        const reviews = await Review.find({ vendorId: vendorId, rating: ratingId,customerId:customerId }).populate('customerId');
         res.json(reviews);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
+
+
 const checkIfCustomerHasSubmittedReview = async (customerId, ratingId) => {
     try {
         const reviewCount = await Review.countDocuments({ customerId, ratingId });
@@ -63,10 +74,26 @@ const checkIfCustomerHasSubmittedReview = async (customerId, ratingId) => {
 const getReviewStatus = async (req, res) => {
     try {
         const { customerId, ratingId } = req.params;
-        const hasSubmittedReview = await checkIfCustomerHasSubmittedReview(customerId, ratingId);
-        res.json({ hasSubmittedReview });
+        const review = await Review.findOne({ customerId:customerId, rating:ratingId });
+        if (review) {
+            res.json({ hasSubmittedReview: true, reviewId: review._id });
+        } else {
+            res.json({ hasSubmittedReview: false });
+        }
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+const getAllReviews = async (req, res) => {
+    try {
+        const reviews = await Review.find();
+        res.json(reviews);
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
@@ -77,5 +104,6 @@ module.exports = {
     deleteReview,
     getReviewsForProduct,
     getReviewsForVendor,
-    getReviewStatus
+    getReviewStatus,
+    getAllReviews
 };

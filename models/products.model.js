@@ -15,7 +15,8 @@ const productSchema = new mongoose.Schema({
     },
     imageUrl: { type: String },
     vendorId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'Vendor',
         required: true
     }
 
